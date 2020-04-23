@@ -1,6 +1,6 @@
 use amethyst::{
     assets::{AssetStorage, Loader, Handle},
-    core::transform::Transform,
+    core::{transform::Transform, timing::Time},
     ecs::prelude::{Component, DenseVecStorage},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -19,7 +19,7 @@ pub const BALL_RADIUS: f32 = 2.0;
 #[derive(Default)]
 pub struct Pong{
     ball_spawn_timer: Option<f32>,
-    sprite_sprite_sheet_handle: Option<Handle<SpriteSheet>>,
+    sprite_sheet_handle: Option<Handle<SpriteSheet>>,
 }
 
 impl SimpleState for Pong {
@@ -31,9 +31,9 @@ impl SimpleState for Pong {
 
         // Load the spritesheet necessary to render the graphics.
         let sprite_sheet_handle = load_sprite_sheet(world);
-        self.sprite_sprite_sheet_handle.replace(sprite_sheet_handle);
+        self.sprite_sheet_handle.replace(sprite_sheet_handle);
 
-        initialise_paddles(world, self.sprite_sprite_sheet_handle.clone().unwrap());
+        initialise_paddles(world, self.sprite_sheet_handle.clone().unwrap());
         initialise_camera(world);
     }
 
