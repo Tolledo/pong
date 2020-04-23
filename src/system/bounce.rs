@@ -1,11 +1,9 @@
 use std::ops::Deref;
-
 use amethyst::{
     assets::AssetStorage,
     audio::{output::Output, Source},
-    core::{Transform, SystemDesc},
-    derive::SystemDesc,
-    ecs::prelude::{Join, ReadStorage, System, SystemData, World, WriteStorage, Read, ReadExpect},
+    core::Transform,
+    ecs::prelude::{Join, ReadStorage, System, WriteStorage, Read, ReadExpect},
 };
 
 use crate::pong::{Ball, Side, Paddle, ARENA_HEIGHT};
