@@ -3,7 +3,7 @@ use amethyst::{
     core::{transform::Transform, timing::Time},
     ecs::prelude::{Component, DenseVecStorage, Entity},
     prelude::*,
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture, Transparent},
     ui::{Anchor, TtfFormat, UiText, UiTransform},
 };
 use crate::audio::initialise_audio;
@@ -32,9 +32,12 @@ impl SimpleState for Pong {
         self.ball_spawn_timer.replace(1.0);
 
         // Load the spritesheet necessary to render the graphics.
-        let sprite_sheet_handle = load_sprite_sheet(world);
+        let sprite_sheet_handle = load_sprite_sheet(world, "texture/pong_spritesheet.png", "texture/pong_spritesheet.ron");
         self.sprite_sheet_handle.replace(sprite_sheet_handle);
 
+        let sprite_sheet_background_handle = load_sprite_sheet(world, "texture/background.png", "texture/background_spritesheet.ron");
+
+        init_background_sprite(world, sprite_sheet_background_handle);
         initialise_paddles(world, self.sprite_sheet_handle.clone().unwrap());
         initialise_camera(world);
         initialise_scoreboard(world);
@@ -131,7 +134,7 @@ fn initialise_paddles(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
         .build();
 }
 
-fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
+fn load_sprite_sheet(world: &mut World, png_path: &str, ron_path: &str) -> Handle<SpriteSheet> {
     // Load the sprite sheet necessary to render the graphics.
     // The texture is the pixel data
     // `texture_handle` is a cloneable reference to the texture
@@ -139,7 +142,7 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
         let loader = world.read_resource::<Loader>();
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
         loader.load(
-            "texture/pong_spritesheet.png",
+            png_path,
             ImageFormat::default(),
             (),
             &texture_storage,
@@ -149,7 +152,7 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     let loader = world.read_resource::<Loader>();
     let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
     loader.load(
-        "texture/pong_spritesheet.ron", // Here we load the associated ron file
+        ron_path, // Here we load the associated ron file
         SpriteSheetFormat(texture_handle),
         (),
         &sprite_sheet_store,
@@ -239,4 +242,20 @@ fn initialise_scoreboard(world: &mut World) {
         .build();
 
     world.insert(ScoreText { p1_score, p2_score });
+}
+
+fn init_background_sprite(world: &mut World, sprite_sheet: Handle<SpriteSheet>) -> Entity {
+    let mut transform = Transform::default();
+    transform.set_translation_z(-10.0);
+    let sprite = SpriteRender {
+        sprite_sheet: sprite_sheet.clone(),
+        sprite_number: 0,
+    };
+    world
+        .create_entity()
+        .with(transform)
+        .with(sprite)
+        .named("background")
+        .with(Transparent)
+        .build()
 }
